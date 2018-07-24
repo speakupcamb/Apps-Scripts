@@ -1,0 +1,27 @@
+{
+  "timeZone": "America/New_York",
+  "dependencies": {
+  },
+  "exceptionLogging": "STACKDRIVER",
+  "sheets": {
+    "macros": [{
+      "menuName": "test",
+      "functionName": "test"
+    }, {
+      "menuName": "test 1",
+      "functionName": "test1"
+    }, {
+      "menuName": "test 2",
+      "functionName": "test2"
+    }, {
+      "menuName": "test",
+      "functionName": "test"
+    }, {
+      "menuName": "test 2",
+      "functionName": "test2"
+    }, {
+      "menuName": "test",
+      "functionName": "test"
+    }]
+  }
+}
