@@ -15,16 +15,6 @@ function Sheets() {
 
 }
 
-
-var personSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Members/Guests');
-var analyticsSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Analytics');
-var meetingAttendanceSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Meetings-Attendance');
-var meetingSpeechesSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Meetings-Speeches');
-var meetingRantsSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Meetings-Rants');
-var duesSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Dues');
-var memberNotAttendedSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Members Not Attended > Month');
-var meetingCountSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Meeting Counts');
-
 Sheets.prototype.getSheets = function() {
   if (!this.isGetSheetsComplete()) {
   this.personSheet = this.getSheetByName('Members/Guests');
