@@ -107,6 +107,27 @@ Airtable.prototype.collectData = function() {
       person['Status'] = this.statusMap[person['Status']];
       person['Dues Status'] = this.duesStatusMap[person['Dues Status']];
       
+      // Ensure the person object has all activity fields
+      for (iH = 0; iH < this.personData.header.length; iH++) {
+        header = this.personData.header[iH];
+        if (!person.hasOwnProperty(header)) {
+          switch (header) {
+          case 'Last Attended Date':
+          case 'Last Role Date':
+          case 'Last Speech Date':
+            person[header] = '2000-01-01';
+            break;
+            
+          case 'Last Role Name':
+          case 'Last Speech Name':
+            person[header] = 'None';
+            break;
+            
+          default:
+            // Do nothing;
+          }
+        }
+      }
       this.personMap[this.persons[iP].id] = person;
     }
   }
@@ -160,11 +181,6 @@ Airtable.prototype.assignActivity = function(meeting, activities, assignAs) {
     for (var iId = 0; iId < personIds.length; iId++) {
       var person = this.personMap[personIds[iId]];
 
-      // Ensure the person objecgt has an activity date field
-      if (!person.hasOwnProperty(assignAs + ' Date')) {
-        person[assignAs + ' Date'] = '2000-01-01';
-      }
-      
       // Assign the most recent activity only. Note that dates are
       // strings formatted as YYYY-MM-DD, and so sort as expected
       if (meeting['Meeting Date'] > person[assignAs + ' Date']) {
