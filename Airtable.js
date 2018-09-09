@@ -1,75 +1,185 @@
 'use strict';
 
+/**
+ * Constructs an Airtable object, and initializes its properties.
+ */
 function Airtable() {
   
   Logger.log('Initializing Airtable');
   
+  // Airtable API parameters
   this.baseURL = 'https://api.airtable.com/v0/';
   this.db_key = 'apppcMJJYoQygtgfZ';
   this.api_key = 'keyl4k6PFanvcnSPr';
   
+  // Airtable data as returned
   this.persons = null;
   this.types = null;
   this.statuses = null;
   this.meetings = null;
   this.dues = null;
-  this.duesStatues = null;
-  
+  this.duesStatuses = null;
+
+  // Meeting activities
+  this.meetingRoles = [
+    'Ah-Um Counter',
+    'General Evaluator',
+    'Grammarian',
+    'Humorist',
+    'Rant',
+    'Round Robin',
+    'Speech',
+    'Speech Evaluator',
+    'Table Topics',
+    'Timer',
+    'Toastmaster',
+    'Word and Thought',
+    'Table Topics Leader'
+  ];
+  this.meetingSpeeches = [
+    'Rant',
+    'Speech',
+    'Table Topics',
+  ];
+
+  // Airtable data as mapped
+  this.personMap = {};
   this.typeMap = {};
   this.statusMap = {};
   this.duesStatusMap = {};
-  
-  this.personFields = [
+
+  // Airtable data as collected
+  this.personData = {};
+  this.personData.header = [
     'Name',
     'First Name',
     'Last Name',
     'Type',
     'Status',
     'Email Address',
-    'Address',
-    'Phone'
+    'Last Attended Date',
+    'Last Role Date',
+    'Last Role Name',
+    'Last Speech Date',
+    'Last Speech Name'
   ];
-  this.meetingAttendanceFields = [
-    'Attended',
-    'Meeting Date'
-  ];
-  this.meetingSpeechesFields = [
-    'Speech',
-    'Meeting Date'
-  ];
-  this.meetingRantsFields = [
-    'Rant',
-    'Meeting Date'
-  ];
-  this.duesFields = [
-    'Person',
-    'Due Period',
-    'Status'
-  ];
-};
+  this.personData.row = {};
 
+}
+
+/**
+ * Collect Airtable data in a format for reporting using Google Sheets.
+ *
+ * @return {Undefined}
+ */
 Airtable.prototype.collectData = function() {
   
-  for (var iT = 0; iT < this.types.length; iT++) {
+  var iP, iM, iT, iS, iDS, iH;
+  var person, meeting;
+  var row, header, value;
+  
+  // Create mappings from type, status, and dues status ids to values
+  // for reporting
+  for (iT = 0; iT < this.types.length; iT++) {
     if (!this.typeMap.hasOwnProperty(this.types[iT].id)) {
-      this.typeMap[this.types[iT].id] = this.types[iT].fields.Status;
+      this.typeMap[this.types[iT].id] = this.types[iT].fields['Status'];
     }
   }
-
-  for (var iS = 0; iS < this.statuses.length; iS++) {
+  for (iS = 0; iS < this.statuses.length; iS++) {
     if (!this.statusMap.hasOwnProperty(this.statuses[iS].id)) {
-      this.statusMap[this.statuses[iS].id] = this.statuses[iS].fields.Name;
+      this.statusMap[this.statuses[iS].id] = this.statuses[iS].fields['Name'];
+    }
+  }
+  for (iDS = 0; iDS < this.duesStatuses.length; iDS++) {
+    if (!this.statusMap.hasOwnProperty(this.duesStatuses[iDS].id)) {
+      this.duesStatusMap[this.duesStatuses[iDS].id] = this.duesStatuses[iDS].fields['Paid/Unpaid'];
     }
   }
 
-  for (var iD = 0; iD < this.duesStatuses.length; iD++) {
-    if (!this.statusMap.hasOwnProperty(this.duesStatuses[iD].id)) {
-      this.duesStatusMap[this.duesStatuses[iD].id] = this.duesStatuses[iD].fields['Paid/Unpaid'];
+  // Create mapping from person ids to person fields object for fast
+  // lookup when collecting meeting data
+  for (iP = 0; iP < this.persons.length; iP++) {
+    if (!this.personMap.hasOwnProperty(this.persons[iP].id)) {
+      person = this.persons[iP].fields;
+
+      // Map type, status, and dues status ids to values for reporting
+      person['Type'] = this.typeMap[person['Type']];
+      person['Status'] = this.statusMap[person['Status']];
+      person['Dues Status'] = this.duesStatusMap[person['Dues Status']];
+      
+      this.personMap[this.persons[iP].id] = person;
     }
+  }
+
+  // Collect meeting activities (attended, role, or speech) for each
+  // person
+  for (iM = 0; iM < this.meetings.length; iM++) {
+    meeting = this.meetings[iM].fields;
+    
+    this.assignActivity(meeting, ['Attended'], 'Last Attended');
+    this.assignActivity(meeting, this.meetingRoles, 'Last Role');
+    this.assignActivity(meeting, this.meetingSpeeches, 'Last Speech');
+  }
+
+  // Populate person data for reporting
+  for (iP = 0; iP < this.persons.length; iP++) {
+    person = this.personMap[this.persons[iP].id];
+    
+    row = {};
+    for (iH = 0; iH < this.personData.header.length; iH++) {
+      header = this.personData.header[iH];
+      value = this.persons[iP].fields[header];
+      row[header] = value;
+    }
+    this.personData.rows.push(row);
   }
 
 };
 
+/**
+ * Collect meeting activities (attended, role, or speech) for each
+ * person.
+ *
+ * @param meeting {Object} a meeting object
+ * @param meeting {Array} a list of activities
+ * @param activities {String} a lable for reporting
+ *
+ * @return {Undefined}
+ */
+Airtable.prototype.assignActivity = function(meeting, activities, assignAs) {
+
+  // Consider each activity (attended, role, or speech)
+  for (var iA = 0; iA < activities.length; iA++) {
+    var activity = activities[iA];
+
+    // Consider each person participating in the current activity
+    var personIds = meeting[activity];
+    for (var iId = 0; iId < personIds.length; iId++) {
+      var person = this.personMap[personIds[iId]];
+
+      // Ensure the person objecgt has an activity date field
+      if (!person.hasOwnProperty(assignAs + ' Date')) {
+        person[assignAs + ' Date'] = '2000-01-01';
+      }
+      
+      // Assign the most recent activity only. Note that dates are
+      // strings formatted as YYYY-MM-DD, and so sort as expected
+      if (meeting['Meeting Date'] > person[assignAs + ' Date']) {
+        person[assignAs + ' Date'] = meeting['Meeting Date'];
+        if (assignAs !== 'Last Attended') {
+          person[assignAs + ' Name'] = activity;
+        }
+      }
+    }
+  }
+};
+
+/**
+ * Fetch all required tables using the Airtable API, if fetching of
+ * any required table has not been completed.
+ *
+ * @return {Undefined}
+ */
 Airtable.prototype.fetchTables = function() {
   if (!this.isFetchComplete()) {
     Logger.log('Fetching Guests and Members');
@@ -87,6 +197,12 @@ Airtable.prototype.fetchTables = function() {
   }
 };
 
+/**
+ * Indicated if the fetch for all required tables has been completed,
+ * or not.
+ *
+ * @return {Boolean} true if complete
+ */
 Airtable.prototype.isFetchComplete = function() {
   return (null !== this.persons &&
           null !== this.types &&
@@ -96,8 +212,18 @@ Airtable.prototype.isFetchComplete = function() {
           null !== this.duesStatuses);
 };
 
+/**
+ * Fetch all records for an Airtable URL using the API.
+ *
+ * @param {String} url Airtable URL
+ * @param {String} offset Airtable provided offset id
+ * @param {Array} records Airtable records
+ *
+ * @return {Array} Airtable records
+ */
 Airtable.prototype.fetch = function(url, offset, records) {
   
+  // Use the API to fetch a batch of records
   var response;
   if (offset === undefined) {
     response = UrlFetchApp.fetch(url);
@@ -106,14 +232,17 @@ Airtable.prototype.fetch = function(url, offset, records) {
     response = UrlFetchApp.fetch(url + '&offset=' + offset);
   }
   
+  // Parse the respone
   var json = JSON.parse(response.getContentText());
   
+  // Collect the records
   if (records === undefined) {
     records = json.records;
   } else {
     records = records.concat(json.records);
   }
   
+  // Fetch another batch of records, if required
   if (json.offset !== undefined) {
     records = this.fetch(url, json.offset, records);
   }
