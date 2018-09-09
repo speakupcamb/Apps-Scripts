@@ -63,7 +63,7 @@ function Airtable() {
     'Last Speech Date',
     'Last Speech Name'
   ];
-  this.personData.row = {};
+  this.personData.rows = [];
 
 }
 
@@ -91,7 +91,7 @@ Airtable.prototype.collectData = function() {
     }
   }
   for (iDS = 0; iDS < this.duesStatuses.length; iDS++) {
-    if (!this.statusMap.hasOwnProperty(this.duesStatuses[iDS].id)) {
+    if (!this.duesStatusMap.hasOwnProperty(this.duesStatuses[iDS].id)) {
       this.duesStatusMap[this.duesStatuses[iDS].id] = this.duesStatuses[iDS].fields['Paid/Unpaid'];
     }
   }
@@ -151,7 +151,10 @@ Airtable.prototype.assignActivity = function(meeting, activities, assignAs) {
   // Consider each activity (attended, role, or speech)
   for (var iA = 0; iA < activities.length; iA++) {
     var activity = activities[iA];
-
+    if (!meeting.hasOwnProperty(activity)) {
+      continue;
+    }
+    
     // Consider each person participating in the current activity
     var personIds = meeting[activity];
     for (var iId = 0; iId < personIds.length; iId++) {
