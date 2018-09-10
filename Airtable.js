@@ -217,7 +217,7 @@ Airtable.prototype.fetchTables = function() {
 };
 
 /**
- * Indicated if the fetch for all required tables has been completed,
+ * Indicate if the fetch for all required tables has been completed,
  * or not.
  *
  * @return {Boolean} true if complete
