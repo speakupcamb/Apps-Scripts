@@ -21,9 +21,8 @@ function Sheets() {
 /**
  * Write data containing a header and rows of values to a sheet.
  *
- * @param data {Object} object with properties header, a single
- * element array containing the header values array, and rows, an
- * array of equal length arrays containing the rows values
+ * @param data {Object} object with properties header, the header
+ * values array, and rows, an array of equal length row values arrays
  * @param sheet {Object} Google Sheets object
  *
  * @return {Undefined}
@@ -36,7 +35,7 @@ Sheets.prototype.writeDataToSheet = function(data, sheet) {
 
   // Write and format the header
   range = sheet.getRange(1, 1, 1, data.header.length);
-  range.setValues(data.header);
+  range.setValues([data.header]);
   range.setFontWeight("bold");
   
   // Write the rows
