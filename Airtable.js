@@ -146,11 +146,11 @@ Airtable.prototype.collectData = function() {
   for (iP = 0; iP < this.persons.length; iP++) {
     person = this.personMap[this.persons[iP].id];
     
-    row = {};
+    row = []
     for (iH = 0; iH < this.personData.header.length; iH++) {
       header = this.personData.header[iH];
       value = this.persons[iP].fields[header];
-      row[header] = value;
+      row.push(value);
     }
     this.personData.rows.push(row);
   }

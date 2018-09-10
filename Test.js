@@ -80,11 +80,15 @@ function TestSheets() {
                            ["Name", "First Name", "Last Name", "Type", "Status", "Email Address"],
                            personSheet.getRange(1, 1, 1, 6).getDisplayValues()[0]);
   
-  Logging.log('Testing isGetSheetsComplete()');
+  Logger.log('Testing isGetSheetsComplete()');
   
-  // TODO: Complete
+  GSUnit.assertFalse('Get incomplete', sheets.isGetSheetsComplete());
+  
+  sheets.getSheets();
+  
+  GSUnit.assertTrue('Get complete', sheets.isGetSheetsComplete());
 
-  Logging.log('Testing getSheets()');
+  Logger.log('Testing getSheets()');
 
   // TODO: Complete
 }

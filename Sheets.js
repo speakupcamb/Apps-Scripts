@@ -12,8 +12,22 @@ function Sheets() {
   this.duesSheet = null;
   this.memberNotAttendedSheet = null;
   this.meetingCountSheet = null;
-  
+
 }
+
+Sheets.prototype.writeDataToSheet = function(data, sheet) {
+  
+  sheet.clear();
+  
+  var range;
+  range = sheet.getRange(1, 1, 1, data.header.length);
+  range.setValues([data.header]);
+  range.setFontWeight("bold");
+  
+  range = sheet.getRange(sheet.getLastRow() + 1, 1, data.rows.length, data.rows[0].length);
+  range.setValues(data.rows);
+  
+};
 
 Sheets.prototype.getSheets = function() {
   if (!this.isGetSheetsComplete()) {
@@ -29,14 +43,14 @@ Sheets.prototype.getSheets = function() {
 };
 
 Sheets.prototype.isGetSheetsComplete = function () {
-  return (null === this.personSheet &&
-          null === this.analyticsSheet &&
-          null === this.meetingAttendanceSheet &&
-          null === this.meetingSpeechesSheet &&
-          null === this.meetingRantsSheet &&
-          null === this.duesSheet &&
-          null === this.memberNotAttendedSheet &&
-          null === this.meetingCountSheet);
+  return (null !== this.personSheet &&
+          null !== this.analyticsSheet &&
+          null !== this.meetingAttendanceSheet &&
+          null !== this.meetingSpeechesSheet &&
+          null !== this.meetingRantsSheet &&
+          null !== this.duesSheet &&
+          null !== this.memberNotAttendedSheet &&
+          null !== this.meetingCountSheet);
 };
 
 Sheets.prototype.getSheetByName = function(name) {
