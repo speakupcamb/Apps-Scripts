@@ -1,4 +1,4 @@
-/**
+'use strict';
 
 /**
  * Fetches tables from Airtable, and sheets from Google

@@ -1,3 +1,5 @@
+'use strict';
+
 function TestAirtable() {
   
   // https://sites.google.com/site/scriptsexamples/custom-methods/gsunit
