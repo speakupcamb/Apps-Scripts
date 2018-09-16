@@ -15,4 +15,6 @@ function Reports() {
 
   airtable.collectData();
   sheets.writeDataToSheet(airtable.personData, sheets.personSheet);
+  sheets.writeDataToSheet(airtable.meetingData, sheets.meetingSheet);
+  sheets.writeDataToSheet(airtable.activityData, sheets.activitySheet);
 }
