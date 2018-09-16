@@ -120,13 +120,6 @@ function Airtable() {
     'Date',
     'Activity'
   ];
-  this.activityData.value = [
-    '',
-    '',
-    '',
-    '',
-    ''
-  ];
   this.activityData.rows = [];
 
 }
@@ -200,6 +193,15 @@ Airtable.prototype.collectData = function() {
     this.assignActivity(meeting, ['Attended'], 'Last Attended');
     this.assignActivity(meeting, this.meetingRoles, 'Last Role');
     this.assignActivity(meeting, this.meetingSpeeches, 'Last Speech');
+
+    // Populate meeting data for reporting
+    row = [];
+    for (iH = 0; iH < this.meetingData.header.length; iH++) {
+      header = this.meetingData.header[iH];
+      value = meeting[header];
+      row.push(value);
+    }
+    this.meetingData.rows.push(row);
   }
 
   // Populate person data for reporting
@@ -241,30 +243,38 @@ Airtable.prototype.assignActivity = function(meeting, activities) {
     for (var iId = 0; iId < personIds.length; iId++) {
       var person = this.personMap[personIds[iId]];
 
+      // Record the activity for the current meeting and person
+      this.activityData.rows.push(
+        [person['Name'], person['Type'], person['Status'], meeting['Meeting Date'], activity]);
+
       // Count guests, members, speeches, rants, or table topics, or
-      // record a name with each role for the current
-      // meeting. Determine the field to assign the activity to the
-      // current person.
-      var assignAs;
+      // record a name with each role for the current meeting
       if (activity === 'Attended') {
-        assignAs = 'Last Attended';
         if (person['Type'] === 'Guest') {
           meeting['Guests'] += 1;
         } else {
           meeting['Members'] += 1;
         }
       } else if (this.meetingSpeeches.indexOf(activity) > -1) {
-        assignAs = 'Last Speech';
         meeting[activity] += 1;
 
       } else if (this.meetingRoles.indexOf(activity) > -1) {
-        assignAs = 'Last Role';
         meeting[activity] = person['Name'];
       }
         
       // Assign the most recent activity for the current person. Note
       // that dates are strings formatted as YYYY-MM-DD, and so sort
       // as expected.
+      var assignAs;
+      if (activity === 'Attended') {
+        assignAs = 'Last Attended';
+
+      } else if (this.meetingSpeeches.indexOf(activity) > -1) {
+        assignAs = 'Last Speech';
+
+      } else if (this.meetingRoles.indexOf(activity) > -1) {
+        assignAs = 'Last Role';
+      }
       if (meeting['Meeting Date'] > person[assignAs + ' Date']) {
         person[assignAs + ' Date'] = meeting['Meeting Date'];
         if (assignAs !== 'Last Attended') {
