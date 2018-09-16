@@ -22,31 +22,28 @@ function Airtable() {
 
   // Meeting activities
   this.meetingRoles = [
-    'Ah-Um Counter',
-    'General Evaluator',
-    'Grammarian',
-    'Humorist',
-    'Rant',
-    'Round Robin',
-    'Speech',
-    'Speech Evaluator',
-    'Table Topics',
-    'Timer',
     'Toastmaster',
     'Word and Thought',
-    'Table Topics Leader'
+    'Humorist',
+    'Round Robin',
+    'Table Topics Leader',
+    'General Evaluator',
+    'Speech Evaluator',
+    'Timer',
+    'Grammarian',
+    'Ah-Um Counter'
   ];
   this.meetingSpeeches = [
     'Rant',
     'Speech',
-    'Table Topics',
+    'Table Topics'
   ];
 
   // Airtable data as mapped
-  this.personMap = {};
   this.typeMap = {};
   this.statusMap = {};
   this.duesStatusMap = {};
+  this.personMap = {};
 
   // Airtable data as collected
   this.personData = {};
@@ -63,7 +60,74 @@ function Airtable() {
     'Last Speech Date',
     'Last Speech Name'
   ];
+  this.personData.value = [
+    '',  // 'Name'
+    '',  // 'First Name'
+    '',  // 'Last Name'
+    '',  // 'Type'
+    '',  // 'Status'
+    '',  // 'Email Address'
+    '2000-01-01',  // 'Last Attended Date'
+    '2000-01-01',  // 'Last Role Date'
+    '',  // 'Last Role Name'
+    '2000-01-01',  // 'Last Speech Date'
+    ''  // 'Last Speech Name'
+  ];
   this.personData.rows = [];
+
+  this.meetingData = {};
+  this.meetingData.header = [
+    'Date',
+    'Guests',
+    'Members',
+    'Speeches',
+    'Rants',
+    'Table Topics',
+    'Toastmaster',
+    'Word and Thought',
+    'Humorist',
+    'Round Robin',
+    'Table Topics Leader',
+    'General Evaluator',
+    'Timer',
+    'Grammarian',
+    'Ah-Um Counter'
+  ];
+  this.meetingData.value = [
+    '',  // 'Date'
+    0,  // 'Guests'
+    0,  // 'Members'
+    0,  // 'Speeches'
+    0,  // 'Rants'
+    0,  // 'Table Topics'
+    '',  // 'Toastmaster'
+    '',  // 'Word and Thought'
+    '',  // 'Humorist'
+    '',  // 'Round Robin'
+    '',  // 'Table Topics Leader'
+    '',  // 'General Evaluator'
+    '',  // 'Timer'
+    '',  // 'Grammarian'
+    ''  // 'Ah-Um Counter'
+  ];
+  this.meetingData.rows = [];
+
+  this.activityData = {};
+  this.activityData.header = [
+    'Name',
+    'Type',
+    'Status',
+    'Date',
+    'Activity'
+  ];
+  this.activityData.value = [
+    '',
+    '',
+    '',
+    '',
+    ''
+  ];
+  this.activityData.rows = [];
 
 }
 
@@ -102,32 +166,19 @@ Airtable.prototype.collectData = function() {
     if (!this.personMap.hasOwnProperty(this.persons[iP].id)) {
       person = this.persons[iP].fields;
 
+      // Ensure the person object has all expected fields
+      for (iH = 0; iH < this.personData.header.length; iH++) {
+        header = this.personData.header[iH];
+        if (!person.hasOwnProperty(header)) {
+          person[header] = this.personData.value[iH];
+        }
+      }
+
       // Map type, status, and dues status ids to values for reporting
       person['Type'] = this.typeMap[person['Type']];
       person['Status'] = this.statusMap[person['Status']];
       person['Dues Status'] = this.duesStatusMap[person['Dues Status']];
       
-      // Ensure the person object has all activity fields
-      for (iH = 0; iH < this.personData.header.length; iH++) {
-        header = this.personData.header[iH];
-        if (!person.hasOwnProperty(header)) {
-          switch (header) {
-          case 'Last Attended Date':
-          case 'Last Role Date':
-          case 'Last Speech Date':
-            person[header] = '2000-01-01';
-            break;
-            
-          case 'Last Role Name':
-          case 'Last Speech Name':
-            person[header] = 'None';
-            break;
-            
-          default:
-            // Do nothing;
-          }
-        }
-      }
       this.personMap[this.persons[iP].id] = person;
     }
   }
@@ -137,6 +188,15 @@ Airtable.prototype.collectData = function() {
   for (iM = 0; iM < this.meetings.length; iM++) {
     meeting = this.meetings[iM].fields;
     
+    // Ensure the meeting object has all expected fields
+    for (iH = 0; iH < this.meetingData.header.length; iH++) {
+      header = this.meetingData.header[iH];
+      if (!meeting.hasOwnProperty(header)) {
+        meeting[header] = this.meetingData.default[iH];
+      }
+    }
+
+    // Assign meeting activities for each person
     this.assignActivity(meeting, ['Attended'], 'Last Attended');
     this.assignActivity(meeting, this.meetingRoles, 'Last Role');
     this.assignActivity(meeting, this.meetingSpeeches, 'Last Speech');
@@ -146,7 +206,7 @@ Airtable.prototype.collectData = function() {
   for (iP = 0; iP < this.persons.length; iP++) {
     person = this.personMap[this.persons[iP].id];
     
-    row = []
+    row = [];
     for (iH = 0; iH < this.personData.header.length; iH++) {
       header = this.personData.header[iH];
       value = this.persons[iP].fields[header];
@@ -158,7 +218,7 @@ Airtable.prototype.collectData = function() {
 };
 
 /**
- * Collect meeting activities (attended, role, or speech) for each
+ * Assign meeting activities (attended, role, or speech) for each
  * person.
  *
  * @param meeting {Object} a meeting object
@@ -167,7 +227,7 @@ Airtable.prototype.collectData = function() {
  *
  * @return {Undefined}
  */
-Airtable.prototype.assignActivity = function(meeting, activities, assignAs) {
+Airtable.prototype.assignActivity = function(meeting, activities) {
 
   // Consider each activity (attended, role, or speech)
   for (var iA = 0; iA < activities.length; iA++) {
@@ -175,14 +235,36 @@ Airtable.prototype.assignActivity = function(meeting, activities, assignAs) {
     if (!meeting.hasOwnProperty(activity)) {
       continue;
     }
-    
+
     // Consider each person participating in the current activity
     var personIds = meeting[activity];
     for (var iId = 0; iId < personIds.length; iId++) {
       var person = this.personMap[personIds[iId]];
 
-      // Assign the most recent activity only. Note that dates are
-      // strings formatted as YYYY-MM-DD, and so sort as expected
+      // Count guests, members, speeches, rants, or table topics, or
+      // record a name with each role for the current
+      // meeting. Determine the field to assign the activity to the
+      // current person.
+      var assignAs;
+      if (activity === 'Attended') {
+        assignAs = 'Last Attended';
+        if (person['Type'] === 'Guest') {
+          meeting['Guests'] += 1;
+        } else {
+          meeting['Members'] += 1;
+        }
+      } else if (this.meetingSpeeches.includes(activity)) {
+        assignAs = 'Last Speech';
+        meeting[activity] += 1;
+
+      } else if (this.meetingRoles.includes(activity)) {
+        assignAs = 'Last Role';
+        meeting[activity] = person['Name'];
+      }
+        
+      // Assign the most recent activity for the current person. Note
+      // that dates are strings formatted as YYYY-MM-DD, and so sort
+      // as expected.
       if (meeting['Meeting Date'] > person[assignAs + ' Date']) {
         person[assignAs + ' Date'] = meeting['Meeting Date'];
         if (assignAs !== 'Last Attended') {
