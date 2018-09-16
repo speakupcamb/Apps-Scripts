@@ -9,13 +9,8 @@ function Sheets() {
   
   // Sheets tabs of interest
   this.personSheet = null;
-  this.analyticsSheet = null;
-  this.meetingAttendanceSheet = null;
-  this.meetingSpeechesSheet = null;
-  this.meetingRantsSheet = null;
-  this.duesSheet = null;
-  this.memberNotAttendedSheet = null;
-  this.meetingCountSheet = null;
+  this.meetingSheet = null;
+  this.activitySheet = null;
 }
 
 /**
@@ -51,14 +46,9 @@ Sheets.prototype.writeDataToSheet = function(data, sheet) {
  */
 Sheets.prototype.getSheets = function() {
   if (!this.isGetSheetsComplete()) {
-    this.personSheet = this.getSheetByName('Members/Guests');
-    this.analyticsSheet = this.getSheetByName('Analytics');
-    this.meetingAttendanceSheet = this.getSheetByName('Meetings-Attendance');
-    this.meetingSpeechesSheet = this.getSheetByName('Meetings-Speeches');
-    this.meetingRantsSheet = this.getSheetByName('Meetings-Rants');
-    this.duesSheet = this.getSheetByName('Dues');
-    this.memberNotAttendedSheet = this.getSheetByName('Members Not Attended > Month');
-    this.meetingCountSheet = this.getSheetByName('Meeting Counts');
+    this.personSheet = this.getSheetByName('Persons');
+    this.meetingSheet = this.getSheetByName('Meetings');
+    this.activitySheet = this.getSheetByName('Activities');
   }
 };
 
@@ -70,13 +60,8 @@ Sheets.prototype.getSheets = function() {
  */
 Sheets.prototype.isGetSheetsComplete = function () {
   return (null !== this.personSheet &&
-          null !== this.analyticsSheet &&
-          null !== this.meetingAttendanceSheet &&
-          null !== this.meetingSpeechesSheet &&
-          null !== this.meetingRantsSheet &&
-          null !== this.duesSheet &&
-          null !== this.memberNotAttendedSheet &&
-          null !== this.meetingCountSheet);
+          null !== this.meetingSheet &&
+          null !== this.activitySheet);
 };
 
 /**
