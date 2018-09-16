@@ -253,11 +253,11 @@ Airtable.prototype.assignActivity = function(meeting, activities) {
         } else {
           meeting['Members'] += 1;
         }
-      } else if (this.meetingSpeeches.includes(activity)) {
+      } else if (this.meetingSpeeches.indexOf(activity) > -1) {
         assignAs = 'Last Speech';
         meeting[activity] += 1;
 
-      } else if (this.meetingRoles.includes(activity)) {
+      } else if (this.meetingRoles.indexOf(activity) > -1) {
         assignAs = 'Last Role';
         meeting[activity] = person['Name'];
       }
