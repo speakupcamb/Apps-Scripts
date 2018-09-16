@@ -247,6 +247,8 @@ Airtable.prototype.assignActivity = function(meeting, activities) {
       this.activityData.rows.push(
         [person['Name'], person['Type'], person['Status'], meeting['Meeting Date'], activity]);
 
+      // FIXME: Overwriting fields here: works for single, but multiple, values
+
       // Count guests, members, speeches, rants, or table topics, or
       // record a name with each role for the current meeting
       if (activity === 'Attended') {
