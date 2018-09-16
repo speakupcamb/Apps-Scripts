@@ -192,7 +192,7 @@ Airtable.prototype.collectData = function() {
     for (iH = 0; iH < this.meetingData.header.length; iH++) {
       header = this.meetingData.header[iH];
       if (!meeting.hasOwnProperty(header)) {
-        meeting[header] = this.meetingData.default[iH];
+        meeting[header] = this.meetingData.value[iH];
       }
     }
 
