@@ -11,6 +11,7 @@ function Reports() {
   var sheets = new Sheets();
 
   airtable.fetchTables();
+  airtable.createMaps();
   sheets.getSheets();
 
   airtable.collectData();

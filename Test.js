@@ -20,7 +20,6 @@ function TestAirtable() {
   GSUnit.assertFalse('Fetch incomplete', airtable.isFetchComplete());
   
   airtable.fetchTables();
-  airtable.collectData();
   
   GSUnit.assertTrue('Fetch complete', airtable.isFetchComplete());
   
@@ -56,16 +55,32 @@ function TestAirtable() {
   
   Logger.log('Testing fetchTables()');
   
-  // TODO: Complete
-
+  var person = airtable.persons.filter(function (person) {
+    return person.id === 'rec0Jmw8dfSzlM8Ic';
+  })[0].fields;
+  GSUnit.assertEquals('Selected person First Name', 'Jagjeet', person['First Name']);
+  
+  Logger.log('Testing createMaps');
+  
+  airtable.createMaps();
+  
+  GSUnit.assertEquals('Type map for Member', 'Member', airtable.typeMap['reclyIyLOaIs6YXwV']);
+  
   Logger.log('Testing assignActivity');
-
-  // TODO: Complete
+  
+  var meeting = airtable.meetings.filter(function (meeting) {
+    return meeting.id === 'recAspf3cA5Gw2nwf';
+  })[0].fields;
+  airtable.assignActivity(meeting, ['Toastmaster']);
+  
+  GSUnit.assertEquals('Assign Toastmaster for selected meeting', 'Andrea Moore', meeting['Toastmaster Name']);
   
   Logger.log('Testing collectData');
-
-  // TODO: Complete
-
+  
+  airtable.collectData();
+  
+  GSUnit.assertEquals('Collect Member Count for selected meeting', 9, meeting['Member Count']);
+  
 }
 
 function TestSheets() {
@@ -76,7 +91,7 @@ function TestSheets() {
   
   Logger.log('Test getSheetByName()');
   
-  personSheet = sheets.getSheetByName('Members/Guests');
+  personSheet = sheets.getSheetByName('Persons');
   
   GSUnit.assertArrayEquals('Header of Guests and Members sheet',
                            ["Name", "First Name", "Last Name", "Type", "Status", "Email Address"],
@@ -89,8 +104,11 @@ function TestSheets() {
   sheets.getSheets();
   
   GSUnit.assertTrue('Get complete', sheets.isGetSheetsComplete());
-
+  
   Logger.log('Testing getSheets()');
-
-  // TODO: Complete
+    
+  GSUnit.assertEquals('Get person sheet second column header', 'First Name', sheets.personSheet.getRange(1, 2, 1, 2).getValue());
+  GSUnit.assertEquals('Get meeting sheet second column header', 'Guest Count', sheets.meetingSheet.getRange(1, 2, 1, 2).getValue());
+  GSUnit.assertEquals('Get activity sheet second column header', 'Type', sheets.activitySheet.getRange(1, 2, 1, 2).getValue());
+  
 }
