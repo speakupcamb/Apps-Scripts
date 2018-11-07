@@ -80,6 +80,7 @@ function Airtable() {
     'Meeting Date',
     'Guest Count',
     'Member Count',
+    'Officer Count',
     'Rant Count',
     'Speech Count',
     'Table Topics Count',
@@ -100,6 +101,7 @@ function Airtable() {
     '',  // 'Meeting Date'
     0,  // 'Guest Count'
     0,  // 'Member Count'
+    0,  // 'Officer Count'
     0,  // 'Rant Count'
     0,  // 'Speech Count'
     0,  // 'Table Topics Count'
@@ -128,6 +130,14 @@ function Airtable() {
   ];
   this.activityData.rows = [];
   
+  this.duesData = {};
+  this.duesData.header = [
+    'Due Period',
+    'Status',
+    'Person'
+  ];
+  this.duesData.rows = [];
+  
 }
 
 /**
@@ -137,8 +147,8 @@ function Airtable() {
 */
 Airtable.prototype.collectData = function() {
   
-  var iP, iM, iT, iS, iDS, iH;
-  var person, meeting;
+  var iP, iM, iT, iS, iDS, iDSP, iH;
+  var person, meeting, dueStatus;
   var row, header, value;
   
   // Collect meeting activities (attended, role, or speech) for each
@@ -181,6 +191,29 @@ Airtable.prototype.collectData = function() {
     }
     this.personData.rows.push(row);
   }
+  
+  // Collect dues data for reporting
+  for (iDS = 0; iDS < this.dues.length; iDS++) {
+    if (this.dues[iDS].fields['Person'] !== undefined) {
+      for (iDSP = 0; iDSP < this.dues[iDS].fields['Person'].length; iDSP++) {
+        person = this.personMap[this.dues[iDS].fields['Person'][iDSP]];
+        
+        row = [];
+        for (iH = 0; iH < this.duesData.header.length; iH++) {
+          header = this.duesData.header[iH];
+          if (header === "Person") {
+            value = person.Name;
+          } else {
+            value = this.dues[iDS].fields[header];
+          }
+          
+          row.push(value);
+        }
+        this.duesData.rows.push(row);
+        
+      }
+    }
+  } 
 };
 
 /**
@@ -216,7 +249,10 @@ Airtable.prototype.assignActivity = function(meeting, activities) {
       if (activity === 'Attended') {
         if (person['Type'] === 'Guest') {
           meeting['Guest Count'] += 1;
-        } else {
+        } else if (person['Type'] === 'Member/Officer') {
+          meeting['Officer Count'] += 1;
+        }
+          else if (person['Type'] === 'Member') {
           meeting['Member Count'] += 1;
         }
       } else if (this.meetingSpeeches.indexOf(activity) > -1) {
