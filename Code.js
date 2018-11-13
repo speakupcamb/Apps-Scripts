@@ -1,3 +1,5 @@
+// *** Original script, not currently in use ***
+
 // Written by Paul Ventresca, June 2018
 // For issues/maintenance, please contact: psventresca@gmail.com and/or raymond.leclair@gmail.com
 // Mucked with by Ray LeClair, July 18, 2018. Sorry.

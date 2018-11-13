@@ -55,7 +55,7 @@ Sheets.prototype.getSheets = function() {
     this.activitySheet = this.getSheetByName('Activities');
     this.analyticsSheet = this.getSheetByName('Analytics');
     this.duesSheet = this.getSheetByName('Dues');
-    this.notAttendedSheet = this.getSheetByName('Members Not Attended > Month');
+    this.notAttendedSheet = this.getSheetByName('Not Attended > Month');
   }
 };
 

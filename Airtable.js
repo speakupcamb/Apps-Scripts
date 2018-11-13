@@ -148,6 +148,7 @@ function Airtable() {
   this.notAttendedData = {};
   this.notAttendedData.header = [
     'Name',
+    'Type',
     'Last Attended Date',
     'Days Since Today'
   ];

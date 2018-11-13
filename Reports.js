@@ -34,7 +34,7 @@ function Reports() {
   sheets.activitySheet.sort(5, true);
   sheets.activitySheet.autoResizeColumns(1, sheets.activitySheet.getLastColumn());
   sheets.activitySheet.getRange(2, 1).activate();
-  sheets.notAttendedSheet.sort(2, true);
+  sheets.notAttendedSheet.sort(3, true);
   sheets.notAttendedSheet.autoResizeColumns(1, sheets.notAttendedSheet.getLastColumn());
   sheets.notAttendedSheet.getRange(2, 1).activate();
   sheets.duesSheet.sort(1, false);
