@@ -7,6 +7,13 @@ function Airtable() {
   
   Logger.log('Initializing Airtable');
   
+  // Today's date constant
+  var todayDate = new Date();
+  var lastMonthDate = new Date();
+  lastMonthDate.setDate(todayDate.getDate()-30);
+  this.todayDate = todayDate;
+  this.lastMonthDate = lastMonthDate;
+  
   // Airtable API parameters
   this.baseURL = 'https://api.airtable.com/v0/';
   this.db_key = 'apppcMJJYoQygtgfZ';
@@ -80,6 +87,7 @@ function Airtable() {
     'Meeting Date',
     'Guest Count',
     'Member Count',
+    'Officer Count',
     'Rant Count',
     'Speech Count',
     'Table Topics Count',
@@ -100,6 +108,7 @@ function Airtable() {
     '',  // 'Meeting Date'
     0,  // 'Guest Count'
     0,  // 'Member Count'
+    0,  // 'Officer Count'
     0,  // 'Rant Count'
     0,  // 'Speech Count'
     0,  // 'Table Topics Count'
@@ -128,6 +137,23 @@ function Airtable() {
   ];
   this.activityData.rows = [];
   
+  this.duesData = {};
+  this.duesData.header = [
+    'Due Period',
+    'Status',
+    'Person'
+  ];
+  this.duesData.rows = [];
+  
+  this.notAttendedData = {};
+  this.notAttendedData.header = [
+    'Name',
+    'Type',
+    'Last Attended Date',
+    'Days Since Today'
+  ];
+  this.notAttendedData.rows = [];
+  
 }
 
 /**
@@ -137,8 +163,8 @@ function Airtable() {
 */
 Airtable.prototype.collectData = function() {
   
-  var iP, iM, iT, iS, iDS, iH;
-  var person, meeting;
+  var iP, iM, iT, iS, iDS, iDSP, iH, iNa;
+  var person, meeting, dueStatus, lastAttendedDate, nullDate;
   var row, header, value;
   
   // Collect meeting activities (attended, role, or speech) for each
@@ -181,6 +207,49 @@ Airtable.prototype.collectData = function() {
     }
     this.personData.rows.push(row);
   }
+  
+  // Collect not attended data for reporting
+  for (iNa = 0; iNa < this.persons.length; iNa++) {
+    lastAttendedDate = new Date(this.persons[iNa].fields['Last Attended Date']);
+    nullDate = new Date('2000-01-01');
+    
+    if (lastAttendedDate.getTime() < this.lastMonthDate.getTime() && lastAttendedDate.getTime() !== nullDate.getTime()) {
+      row = [];
+      for (iH = 0; iH < this.notAttendedData.header.length; iH++) {
+        header = this.notAttendedData.header[iH];
+        if (header === "Days Since Today") {
+          value = Math.round((this.todayDate - lastAttendedDate) / (1000 * 60 * 60 * 24));
+        } else {
+          value = this.persons[iNa].fields[header];
+        }
+        row.push(value);
+      }
+      this.notAttendedData.rows.push(row);
+    }
+  }
+  
+  // Collect dues data for reporting
+  for (iDS = 0; iDS < this.dues.length; iDS++) {
+    if (this.dues[iDS].fields['Person'] !== undefined) {
+      for (iDSP = 0; iDSP < this.dues[iDS].fields['Person'].length; iDSP++) {
+        person = this.personMap[this.dues[iDS].fields['Person'][iDSP]];
+        
+        row = [];
+        for (iH = 0; iH < this.duesData.header.length; iH++) {
+          header = this.duesData.header[iH];
+          if (header === "Person") {
+            value = person.Name;
+          } else {
+            value = this.dues[iDS].fields[header];
+          }
+          
+          row.push(value);
+        }
+        this.duesData.rows.push(row);
+        
+      }
+    }
+  } 
 };
 
 /**
@@ -216,7 +285,10 @@ Airtable.prototype.assignActivity = function(meeting, activities) {
       if (activity === 'Attended') {
         if (person['Type'] === 'Guest') {
           meeting['Guest Count'] += 1;
-        } else {
+        } else if (person['Type'] === 'Member/Officer') {
+          meeting['Officer Count'] += 1;
+        }
+          else if (person['Type'] === 'Member') {
           meeting['Member Count'] += 1;
         }
       } else if (this.meetingSpeeches.indexOf(activity) > -1) {

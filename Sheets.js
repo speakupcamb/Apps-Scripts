@@ -11,6 +11,9 @@ function Sheets() {
   this.personSheet = null;
   this.meetingSheet = null;
   this.activitySheet = null;
+  this.analyticsSheet = null;
+  this.notAttendedSheet = null;
+  this.duesSheet = null;
 }
 
 /**
@@ -38,6 +41,7 @@ Sheets.prototype.writeDataToSheet = function(data, sheet) {
   range.setValues(data.rows);
 };
 
+
 /**
  * Get all required sheets using the Google Sheets API, if getting of
  * any of the required sheets has not been completed.
@@ -49,6 +53,9 @@ Sheets.prototype.getSheets = function() {
     this.personSheet = this.getSheetByName('Persons');
     this.meetingSheet = this.getSheetByName('Meetings');
     this.activitySheet = this.getSheetByName('Activities');
+    this.analyticsSheet = this.getSheetByName('Analytics');
+    this.duesSheet = this.getSheetByName('Dues');
+    this.notAttendedSheet = this.getSheetByName('Not Attended > Month');
   }
 };
 
@@ -61,6 +68,9 @@ Sheets.prototype.getSheets = function() {
 Sheets.prototype.isGetSheetsComplete = function () {
   return (null !== this.personSheet &&
           null !== this.meetingSheet &&
+          null !== this.analyticsSheet &&
+          null !== this.notAttendedSheet &&
+          null !== this.duesSheet &&
           null !== this.activitySheet);
 };
 
