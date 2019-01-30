@@ -41,49 +41,6 @@ Sheets.prototype.writeDataToSheet = function(data, sheet) {
   range.setValues(data.rows);
 };
 
-/**
- * Populate the Members Not Attended > Month sheet
- *
- * @return {Undefined}
- */
-Sheets.prototype.findAbsenteeMembers = function(personSheet,absenteeSheet) {
-  
-  absenteeSheet.clear();
-  absenteeSheet.getRange(1, 1).setValue("Member");
-  absenteeSheet.getRange(1, 2).setValue("Last Attended");
-  absenteeSheet.getRange(1, 3).setValue("Days Since Today");
-  absenteeSheet.getRange(1, 1, 1, 3).setFontWeight("bold");
-  
-  var x = 2;
-  var checkDate;
-  var dateDiff;
-  var todayDate = new Date();
-  var lastMonthDate = new Date();
-  lastMonthDate.setDate(todayDate.getDate()-30);
-  var rangeData = personSheet.getDataRange();
-  var lastColumn = rangeData.getLastColumn();
-  var lastRow = rangeData.getLastRow();
-  var searchRange = personSheet.getRange(2,1, lastRow-1, lastColumn-1);
-  
-  // Get array of values in the search Range
-  var rangeValues = searchRange.getValues();
-  // Loop through array and if condition met, add it to memberNotAttendedSheet
-  for (j = 0 ; j < lastRow - 1; j++){
-    checkDate = rangeValues[j][6];
-    if(checkDate) {
-      if(checkDate < lastMonthDate){
-        absenteeSheet.getRange(x,1).setValue(rangeValues[j][0]);
-        absenteeSheet.getRange(x,2).setValue(rangeValues[j][6]);
-        dateDiff = Math.round((todayDate - checkDate) / (1000 * 60 * 60 * 24));
-        absenteeSheet.getRange(x,3).setValue(dateDiff);
-        x++;
-      }
-    }
-  }
-
-  absenteeSheet.sort(2, true);
-    
-};
 
 /**
  * Get all required sheets using the Google Sheets API, if getting of
@@ -98,7 +55,7 @@ Sheets.prototype.getSheets = function() {
     this.activitySheet = this.getSheetByName('Activities');
     this.analyticsSheet = this.getSheetByName('Analytics');
     this.duesSheet = this.getSheetByName('Dues');
-    this.notAttendedSheet = this.getSheetByName('Members Not Attended > Month');
+    this.notAttendedSheet = this.getSheetByName('Not Attended > Month');
   }
 };
 

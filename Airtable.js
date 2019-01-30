@@ -7,6 +7,13 @@ function Airtable() {
   
   Logger.log('Initializing Airtable');
   
+  // Today's date constant
+  var todayDate = new Date();
+  var lastMonthDate = new Date();
+  lastMonthDate.setDate(todayDate.getDate()-30);
+  this.todayDate = todayDate;
+  this.lastMonthDate = lastMonthDate;
+  
   // Airtable API parameters
   this.baseURL = 'https://api.airtable.com/v0/';
   this.db_key = 'apppcMJJYoQygtgfZ';
@@ -138,6 +145,15 @@ function Airtable() {
   ];
   this.duesData.rows = [];
   
+  this.notAttendedData = {};
+  this.notAttendedData.header = [
+    'Name',
+    'Type',
+    'Last Attended Date',
+    'Days Since Today'
+  ];
+  this.notAttendedData.rows = [];
+  
 }
 
 /**
@@ -147,8 +163,8 @@ function Airtable() {
 */
 Airtable.prototype.collectData = function() {
   
-  var iP, iM, iT, iS, iDS, iDSP, iH;
-  var person, meeting, dueStatus;
+  var iP, iM, iT, iS, iDS, iDSP, iH, iNa;
+  var person, meeting, dueStatus, lastAttendedDate, nullDate;
   var row, header, value;
   
   // Collect meeting activities (attended, role, or speech) for each
@@ -190,6 +206,26 @@ Airtable.prototype.collectData = function() {
       row.push(value);
     }
     this.personData.rows.push(row);
+  }
+  
+  // Collect not attended data for reporting
+  for (iNa = 0; iNa < this.persons.length; iNa++) {
+    lastAttendedDate = new Date(this.persons[iNa].fields['Last Attended Date']);
+    nullDate = new Date('2000-01-01');
+    
+    if (lastAttendedDate.getTime() < this.lastMonthDate.getTime() && lastAttendedDate.getTime() !== nullDate.getTime()) {
+      row = [];
+      for (iH = 0; iH < this.notAttendedData.header.length; iH++) {
+        header = this.notAttendedData.header[iH];
+        if (header === "Days Since Today") {
+          value = Math.round((this.todayDate - lastAttendedDate) / (1000 * 60 * 60 * 24));
+        } else {
+          value = this.persons[iNa].fields[header];
+        }
+        row.push(value);
+      }
+      this.notAttendedData.rows.push(row);
+    }
   }
   
   // Collect dues data for reporting
