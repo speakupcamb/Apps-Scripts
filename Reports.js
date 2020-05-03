@@ -45,3 +45,16 @@ function Reports() {
   
   Browser.msgBox("Refresh complete!");
 }
+
+
+/**
+ * Gets current date/time and returns a formatted string.
+ *
+ * @return {String}
+ */
+Reports.prototype.getTimestamp = function() {
+  var currentTime = new Date();
+  var timeZone = CalendarApp.getDefaultCalendar().getTimeZone();
+  var timeString = Utilities.formatDate(currentTime, timeZone,'EEEE, M/d/yy, hh:mm:ss aaa');
+  return timeString;
+};
