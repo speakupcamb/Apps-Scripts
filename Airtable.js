@@ -66,7 +66,9 @@ function Airtable() {
     'Last Role Name',
     'Last Speech Date',
     'Last Speech Name',
-    'Dues Last Paid'
+    'Dues Last Paid',
+    'Email Marketing',
+    'Email Category'
   ];
   this.personData.value = [
     '',  // 'Name'
@@ -80,7 +82,9 @@ function Airtable() {
     '',  // 'Last Role Name'
     '2000-01-01',  // 'Last Speech Date'
     '',  // 'Last Speech Name'
-    '2000-01-01'  // 'Dues Last Paid'
+    '2000-01-01',  // 'Dues Last Paid'
+    '',  // 'Email Marketing'
+    ''  // 'Email Category'
   ];
   this.personData.rows = [];
   
