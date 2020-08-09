@@ -21,8 +21,11 @@ function Reports() {
   sheets.writeDataToSheet(airtable.duesData, sheets.duesSheet);
   sheets.writeDataToSheet(airtable.notAttendedData, sheets.notAttendedSheet);
   
-  //Closing ceremonies
-  sheets.analyticsSheet.getRange(2, 1).setValue("Last Refresh: " + getTimestamp());
+  // Closing ceremonies
+  var currentTime = new Date();
+  var timeZone = CalendarApp.getDefaultCalendar().getTimeZone();
+  var timeString = Utilities.formatDate(currentTime, timeZone,'EEEE, M/d/yy, hh:mm:ss aaa');
+  sheets.analyticsSheet.getRange(2, 1).setValue("Last Refresh: " + timeString);
   
   //Resize columns and return cursor to first cell for all sheets
   sheets.personSheet.sort(1, true);
