@@ -323,6 +323,11 @@ Airtable.prototype.assignActivity = function(meeting, activities) {
         if (assignAs !== 'Last Attended') {
           person[assignAs + ' Name'] = activity;
         }
+        // If Last Role, also update Last Attended
+        if (assignAs === 'Last Role') {
+          person['Last Attended Date'] = meeting['Meeting Date']
+        }
+
       }
     }
   }
