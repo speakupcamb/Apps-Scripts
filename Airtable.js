@@ -289,6 +289,7 @@ Airtable.prototype.assignActivity = function(meeting, activities) {
           meeting['Guest Count'] += 1;
         } else if (person['Type'] === 'Member/Officer') {
           meeting['Officer Count'] += 1;
+          meeting['Member Count'] += 1;
         }
           else if (person['Type'] === 'Member') {
           meeting['Member Count'] += 1;
@@ -322,6 +323,11 @@ Airtable.prototype.assignActivity = function(meeting, activities) {
         if (assignAs !== 'Last Attended') {
           person[assignAs + ' Name'] = activity;
         }
+        // If Last Role, also update Last Attended
+        if (assignAs === 'Last Role') {
+          person['Last Attended Date'] = meeting['Meeting Date']
+        }
+
       }
     }
   }
@@ -338,17 +344,17 @@ Airtable.prototype.createMaps = function() {
   
   // Create mappings from type, status, and dues status ids to values
   // for reporting
-  for (iT = 0; iT < this.types.length; iT++) {
+  for (var iT = 0; iT < this.types.length; iT++) {
     if (!this.typeMap.hasOwnProperty(this.types[iT].id)) {
       this.typeMap[this.types[iT].id] = this.types[iT].fields['Status'];
     }
   }
-  for (iS = 0; iS < this.statuses.length; iS++) {
+  for (var iS = 0; iS < this.statuses.length; iS++) {
     if (!this.statusMap.hasOwnProperty(this.statuses[iS].id)) {
       this.statusMap[this.statuses[iS].id] = this.statuses[iS].fields['Name'];
     }
   }
-  for (iDS = 0; iDS < this.duesStatuses.length; iDS++) {
+  for (var iDS = 0; iDS < this.duesStatuses.length; iDS++) {
     if (!this.duesStatusMap.hasOwnProperty(this.duesStatuses[iDS].id)) {
       this.duesStatusMap[this.duesStatuses[iDS].id] = this.duesStatuses[iDS].fields['Paid/Unpaid'];
     }
@@ -356,13 +362,13 @@ Airtable.prototype.createMaps = function() {
   
   // Create mapping from person ids to person fields object for fast
   // lookup when collecting meeting data
-  for (iP = 0; iP < this.persons.length; iP++) {
+  for (var iP = 0; iP < this.persons.length; iP++) {
     if (!this.personMap.hasOwnProperty(this.persons[iP].id)) {
-      person = this.persons[iP].fields;
+      var person = this.persons[iP].fields;
       
       // Ensure the person object has all expected fields
-      for (iH = 0; iH < this.personData.header.length; iH++) {
-        header = this.personData.header[iH];
+      for (var iH = 0; iH < this.personData.header.length; iH++) {
+        var header = this.personData.header[iH];
         if (!person.hasOwnProperty(header)) {
           person[header] = this.personData.value[iH];
         }
